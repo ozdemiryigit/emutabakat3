@@ -140,10 +140,18 @@
 *  ENDIF.
     "YiğitcanÖzdemiir *Mutabakat Geçerlilik
 
-    IF i_head_c-xbli EQ 'X'.
-      ls_input_grid-formtype         = '2'.
-    ELSE.
+*    IF i_head_c-xbli EQ 'X'.
+*      ls_input_grid-formtype         = '2'.
+*    ELSE.
+*      ls_input_grid-formtype         = '3'.
+*    ENDIF.
+
+    DATA(lv_bsiz) = |{ VALUE #( gt_out_c[ 1 ]-p_bsiz OPTIONAL ) }|.
+
+    IF lv_bsiz EQ 'X'.
       ls_input_grid-formtype         = '3'.
+    ELSE.
+      ls_input_grid-formtype         = '2'.
     ENDIF.
 
 *    SELECT SINGLE mail
@@ -176,12 +184,12 @@
     ENDIF.
 
 
-
-    LOOP AT it_receivers INTO ls_rece.
-      lv_mailto = ls_rece-receiver.
+    LOOP AT it_receivers INTO DATA(ls_rec) WHERE kunnr = i_head_c-kunnr.
+      IF i_head_c-kunnr IS NOT INITIAL.
+        lv_mailto = ls_rec-receiver.
 *      APPEND lv_mailto TO ls_input_grid-mailto.
-      APPEND INITIAL LINE TO  ls_input_grid-mailto ASSIGNING FIELD-SYMBOL(<fs_mailto>).
-      <fs_mailto> = lv_mailto.
+        APPEND INITIAL LINE TO  ls_input_grid-mailto ASSIGNING FIELD-SYMBOL(<fs_mailto>).
+        <fs_mailto> = lv_mailto.
 
 *      IF ( ls_adrs-opbel EQ 'X' OR ls_adrs-submit EQ 'X' ).
 *        CLEAR ls_range.
@@ -190,6 +198,22 @@
 *        ls_range-low    = ls_rece-receiver.
 *        APPEND ls_range TO lt_email_range.
 *      ENDIF.
+      ENDIF.
+    ENDLOOP.
+    LOOP AT it_receivers INTO ls_rec WHERE lifnr = i_head_c-lifnr.
+      IF i_head_c-lifnr IS NOT INITIAL.
+        lv_mailto = ls_rec-receiver.
+        APPEND INITIAL LINE TO  ls_input_grid-mailto ASSIGNING FIELD-SYMBOL(<fs_mailto2>).
+        <fs_mailto2> = lv_mailto.
+
+*      IF ( ls_adrs-opbel EQ 'X' OR ls_adrs-submit EQ 'X' ).
+*        CLEAR ls_range.
+*        ls_range-sign   = 'I'.
+*        ls_range-option = 'EQ'.
+*        ls_range-low    = ls_rece-receiver.
+*        APPEND ls_range TO lt_email_range.
+*      ENDIF.
+      ENDIF.
     ENDLOOP.
 
     "changed ls_input_grid.
